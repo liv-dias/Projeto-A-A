@@ -6,7 +6,7 @@ typedef struct{
 
 Frequencias_letras pt = {0.146, 0.125, 0.107, 0.045, 0.013, 0.004, 0.107, 0.001, 0.001, 0.001, 0.018};
 Frequencias_letras espe = {};
-Frequencias_letras ing = {};
+Frequencias_letras ing = {0.081, 0.121, 0.075, 0.091, 0.065, 0.001, 0.075, 0.007, 0.020, 0.024, 0.017};
 
 int main(){
     float frequencia_port = [];
