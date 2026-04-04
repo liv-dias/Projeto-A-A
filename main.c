@@ -1,127 +1,79 @@
 #include <stdio.h>
-#include <string.h>
 #include <ctype.h>
-#include <math.h>
+#include <string.h>
 
-typedef struct{
-    float a, i, e, o, n, l, s, r, t, k, j;
-}Frequencias_letras;
+#define NUM_IDIOMAS 3
+#define NUM_LETRAS 26
 
-Frequencias_letras pt = {0.146, 0.062, 0.126, 0.108, 0.050, 0.028, 0.078, 0.065, 0.043, 0.0002, 0.004};
-Frequencias_letras espe = {0.121, 0.101, 0.090, 0.088, 0.078, 0.061, 0.061, 0.059, 0.053, 0.042, 0.035};
-Frequencias_letras ing = {0.082, 0.097, 0.127, 0.075, 0.067, 0.040, 0.063, 0.059, 0.090, 0.007, 0.006};
+const char *nomes_idiomas[] = {"Portugues", "Ingles", "Esperanto"};
 
-int main(){
-    char texto[300];
-    int a=0, i=0, e=0, o=0, n=0, l=0, s=0, r=0, t=0, k=0, j = 0;
-    printf("----Identificador de Línguas----\n");
-    printf("Esse programa irá analisar o texto escrito e, usando probabilidades das letras, irá definir se o texto está escrito em Esperanto, Português ou Inglês");
-    printf("\nDigite o texto em uma das línguas:");
-    fgets(texto, 300, stdin);
-    int tamanho_texto = strlen(texto);
-    for (int cont = 0; cont < tamanho_texto; cont++){
-        texto[cont] = tolower(texto[cont]);
-    }
-    for (int cont = 0; cont<tamanho_texto; cont++){
-        if (texto[cont] == 'a'){
-            a++;
-        }
-        else if(texto[cont] == 'i'){
-            i++;
-        }
-        else if(texto[cont] == 'e'){
-            e++;
-        }
-        else if(texto[cont] == 'o'){
-            o++;
-        }
-        else if(texto[cont] == 'n'){
-            n++;
-        }
-        else if(texto[cont] == 'l'){
-            l++;
-        }
-        else if(texto[cont] == 's'){
-            s++;
-        }
-        else if(texto[cont] == 'r'){
-            r++;
-        }
-        else if(texto[cont] == 't'){
-            t++;
-        }
-        else if(texto[cont] == 'k'){
-            k++;
-        }
-        else if(texto[cont] == 'j'){
-            j++;
+// Tabela de frequências (A-Z)
+const float freq_referencia[NUM_IDIOMAS][NUM_LETRAS] = {
+    {14.63, 1.04, 3.88, 4.99, 12.57, 1.02, 1.30, 1.28, 6.18, 0.40, 0.02, 2.78, 4.74, 5.05, 10.73, 2.52, 1.20, 6.53, 7.81, 4.34, 4.63, 1.67, 0.01, 0.21, 0.01, 0.47},
+    {8.17, 1.49, 2.78, 4.25, 12.70, 2.23, 2.02, 6.09, 6.97, 0.15, 0.77, 4.03, 2.41, 6.75, 7.51, 1.93, 0.10, 5.99, 6.33, 9.06, 2.76, 0.98, 2.36, 0.15, 1.97, 0.07},
+    {12.12, 0.98, 0.78, 3.04, 9.09, 1.03, 1.17, 0.38, 10.37, 3.50, 4.16, 6.10, 2.99, 7.98, 8.77, 2.75, 0.00, 5.91, 6.09, 5.27, 3.18, 1.90, 0.00, 0.00, 0.00, 0.49}
+};
+
+int main() {
+    char texto[5000];
+    int contagem[NUM_LETRAS] = {0};
+    int total_letras = 0;
+    float freq_texto[NUM_LETRAS];
+
+    printf("---- Identificador de Linguas (Versao Estatistica Refinada) ----\n");
+    printf("Digite o texto:\n");
+    if (fgets(texto, sizeof(texto), stdin) == NULL) return 1;
+
+    // Converte para minusculo para busca de palavras e contagem de letras
+    for(int i = 0; texto[i]; i++) texto[i] = tolower(texto[i]);
+
+    for (int i = 0; texto[i] != '\0'; i++) {
+        if (texto[i] >= 'a' && texto[i] <= 'z') {
+            contagem[texto[i] - 'a']++;
+            total_letras++;
         }
     }
-    float frequencia_a = (float)a/tamanho_texto;
-    float frequencia_i = (float)i/tamanho_texto;
-    float frequencia_e = (float)e/tamanho_texto;
-    float frequencia_o = (float)o/tamanho_texto;
-    float frequencia_n = (float)n/tamanho_texto;
-    float frequencia_l = (float)l/tamanho_texto;
-    float frequencia_s = (float)s/tamanho_texto;
-    float frequencia_r = (float)r/tamanho_texto;
-    float frequencia_t = (float)t/tamanho_texto;
-    float frequencia_k = (float)k/tamanho_texto;
-    float frequencia_j = (float)j/tamanho_texto;
 
-    float erro_pt = 0;
-    float erro_espe = 0;
-    float erro_ing = 0;
-    
-    //português
-    erro_pt += fabs(frequencia_a - pt.a);
-    erro_pt += fabs(frequencia_i - pt.i);
-    erro_pt += fabs(frequencia_e - pt.e);
-    erro_pt += fabs(frequencia_o - pt.o);
-    erro_pt += fabs(frequencia_n - pt.n);
-    erro_pt += fabs(frequencia_l - pt.l);
-    erro_pt += fabs(frequencia_s - pt.s);
-    erro_pt += fabs(frequencia_r - pt.r);
-    erro_pt += fabs(frequencia_t - pt.t);
-    erro_pt += fabs(frequencia_k - pt.k);
-    erro_pt += fabs(frequencia_j - pt.j);
+    if (total_letras == 0) return 1;
 
-    //esperanto
-    erro_espe += fabs(frequencia_a - espe.a);
-    erro_espe += fabs(frequencia_i - espe.i);
-    erro_espe += fabs(frequencia_e - espe.e);
-    erro_espe += fabs(frequencia_o - espe.o);
-    erro_espe += fabs(frequencia_n - espe.n);
-    erro_espe += fabs(frequencia_l - espe.l);
-    erro_espe += fabs(frequencia_s - espe.s);
-    erro_espe += fabs(frequencia_r - espe.r);
-    erro_espe += fabs(frequencia_t - espe.t);
-    erro_espe += fabs(frequencia_k - espe.k);
-    erro_espe += fabs(frequencia_j - espe.j);
-
-    //inglês
-    erro_ing += fabs(frequencia_a - ing.a);
-    erro_ing += fabs(frequencia_i - ing.i);
-    erro_ing += fabs(frequencia_e - ing.e);
-    erro_ing += fabs(frequencia_o - ing.o);
-    erro_ing += fabs(frequencia_n - ing.n);
-    erro_ing += fabs(frequencia_l - ing.l);
-    erro_ing += fabs(frequencia_s - ing.s);
-    erro_ing += fabs(frequencia_r - ing.r);
-    erro_ing += fabs(frequencia_t - ing.t);
-    erro_ing += fabs(frequencia_k - ing.k);
-    erro_ing += fabs(frequencia_j - ing.j);
-
-    if(erro_pt < erro_ing && erro_pt < erro_espe){
-        printf("O texto está escrito em Português!");
+    for (int i = 0; i < NUM_LETRAS; i++) {
+        freq_texto[i] = ((float)contagem[i] / total_letras) * 100.0;
     }
-    else if(erro_ing < erro_pt && erro_ing < erro_espe){
-        printf("O texto está escrito em Inglês!");
+
+    float menor_distancia = -1.0;
+    int idioma_escolhido = -1;
+
+    for (int i = 0; i < NUM_IDIOMAS; i++) {
+        float distancia_atual = 0.0;
+        
+        for (int j = 0; j < NUM_LETRAS; j++) {
+            float diff = freq_texto[j] - freq_referencia[i][j];
+            float peso = 1.0;
+
+            // PESOS ESTATISTICOS: Letras raras em PT mas comuns em EN/EO
+            char letra = j + 'a';
+            if (letra == 'w' || letra == 'y' || letra == 'k' || letra == 'j') {
+                peso = 15.0; // Aumentamos o impacto dessas letras "assinatura"
+            }
+            
+            distancia_atual += (diff * diff) * peso;
+        }
+
+        // AJUSTE POR PALAVRAS-CHAVE (Stopwords)
+        // Se encontrar " the " ou " and ", reduzimos a distancia para o Ingles
+        if (i == 1 && (strstr(texto, " the ") || strstr(texto, " and "))) distancia_atual /= 2.0;
+        // Se encontrar " que " ou " para ", reduzimos para o Portugues
+        if (i == 0 && (strstr(texto, " que ") || strstr(texto, " para "))) distancia_atual /= 2.0;
+        // Se encontrar " kaj " ou " estas ", reduzimos para o Esperanto
+        if (i == 2 && (strstr(texto, " kaj ") || strstr(texto, " estas "))) distancia_atual /= 2.0;
+
+        if (menor_distancia < 0 || distancia_atual < menor_distancia) {
+            menor_distancia = distancia_atual;
+            idioma_escolhido = i;
+        }
     }
-    else if(erro_espe < erro_pt && erro_espe < erro_ing){
-        printf("O texto está escrito em Esperanto!");
-    }
+
+    printf("\nIdioma detectado: %s\n", nomes_idiomas[idioma_escolhido]);
 
     return 0;
-
 }
